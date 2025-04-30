@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\user\\Desktop\\employee_vacation_system\\Backend\\Backend.csproj": {}
+    "C:\\Users\\user\\Desktop\\employee_vacation_system\\backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\user\\Desktop\\employee_vacation_system\\Backend\\Backend.csproj": {
+    "C:\\Users\\user\\Desktop\\employee_vacation_system\\backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\user\\Desktop\\employee_vacation_system\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\user\\Desktop\\employee_vacation_system\\backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\user\\Desktop\\employee_vacation_system\\Backend\\Backend.csproj",
+        "projectPath": "C:\\Users\\user\\Desktop\\employee_vacation_system\\backend\\Backend.csproj",
         "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\user\\Desktop\\employee_vacation_system\\Backend\\obj\\",
+        "outputPath": "C:\\Users\\user\\Desktop\\employee_vacation_system\\backend\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
           "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -46,9 +50,61 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.ASPNetCore.Authentication.JWTBearer": {
+              "target": "Package",
+              "version": "[7.0.15, )"
+            },
+            "Microsoft.ASPNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.EntityFrameworkCore.sqlserver": {
+              "target": "Package",
+              "version": "[9.0.4, )"
+            },
+            "Microsoft.IdentityModel.JsonWebTokens": {
+              "target": "Package",
+              "version": "[6.35.0, )"
+            },
+            "Microsoft.IdentityModel.Logging": {
+              "target": "Package",
+              "version": "[6.35.0, )"
+            },
+            "Microsoft.IdentityModel.Protocols": {
+              "target": "Package",
+              "version": "[6.35.0, )"
+            },
+            "Microsoft.IdentityModel.Protocols.OpenIdConnect": {
+              "target": "Package",
+              "version": "[6.35.0, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[6.35.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[8.1.1, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.35.0, )"
             }
           },
           "imports": [
