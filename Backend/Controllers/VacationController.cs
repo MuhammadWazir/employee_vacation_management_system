@@ -147,7 +147,7 @@ namespace Backend.Controllers
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok();
         }
 
         // DELETE: api/Vacation/5

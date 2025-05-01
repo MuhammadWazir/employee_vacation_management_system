@@ -1,0 +1,77 @@
+.navbar {
+  background-color: var(--bg-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navbar-brand a {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-color);
+  margin-right: 1.5rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.nav-link:hover {
+  color: var(--primary-color);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+}
+
+.username {
+  margin-right: 1rem;
+  font-weight: 500;
+}
+
+.btn-logout {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  transition: var(--transition);
+}
+
+.btn-logout:hover {
+  background-color: var(--danger-color);
+  color: white;
+  border-color: var(--danger-color);
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 1rem;
+  }
+
+  .username {
+    display: none;
+  }
+}
