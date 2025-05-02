@@ -1,0 +1,28 @@
+.account-settings-container {
+    background-color: var(--bg-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  .account-settings-header {
+    margin-bottom: 2rem;
+  }
+  
+  .account-settings-header h1 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  .account-settings-header p {
+    color: var(--text-light);
+  }
+  
+  .account-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }

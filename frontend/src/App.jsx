@@ -2,8 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./components/auth/Login"
 import Register from "./components/auth/Register"
 import VacationList from "./components/vacations/VacationList"
-import VacationForm from "./components/vacations/VacationForm"
 import CreateVacation from "./components/vacations/CreateVacation"
+import VacationDetail from "./components/vacations/VacationDetail"
+import EditVacation from "./components/vacations/EditVacation"
+import AccountSettings from "./components/account/AccountSettings"
 import Navbar from "./components/layout/Navbar"
 import { AuthProvider } from "./context/AuthContext"
 import PrivateRoute from "./components/auth/PrivateRoute"
@@ -36,10 +38,26 @@ function App() {
                 }
               />
               <Route
+                path="/vacations/:id"
+                element={
+                  <PrivateRoute>
+                    <VacationDetail />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vacations/edit/:id"
                 element={
                   <PrivateRoute>
-                    <VacationForm />
+                    <EditVacation />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/account/settings"
+                element={
+                  <PrivateRoute>
+                    <AccountSettings />
                   </PrivateRoute>
                 }
               />

@@ -8,6 +8,8 @@ using Backend.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Backend.Controllers
 {
@@ -95,5 +97,86 @@ namespace Backend.Controllers
                 return StatusCode(500, e);
             }
         }
+
+        [HttpPut("update")]
+[Authorize] // Require authentication
+public async Task<IActionResult> UpdateAccount(UpdateAccountDto updateDto)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (string.IsNullOrEmpty(userId))
+        return Unauthorized();
+
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+        return NotFound("User not found.");
+
+    // Update email if provided and different
+    if (!string.IsNullOrEmpty(updateDto.Email) && user.Email != updateDto.Email)
+    {
+        user.Email = updateDto.Email;
+        var emailResult = await _userManager.SetEmailAsync(user, updateDto.Email);
+        if (!emailResult.Succeeded)
+            return BadRequest(emailResult.Errors);
+    }
+
+    // Update username if provided and different
+    if (!string.IsNullOrEmpty(updateDto.Username) && user.UserName != updateDto.Username)
+    {
+        user.UserName = updateDto.Username;
+        var usernameResult = await _userManager.SetUserNameAsync(user, updateDto.Username);
+        if (!usernameResult.Succeeded)
+            return BadRequest(usernameResult.Errors);
+    }
+
+    // Update password if provided
+    if (!string.IsNullOrEmpty(updateDto.CurrentPassword) && !string.IsNullOrEmpty(updateDto.NewPassword))
+    {
+        var passwordResult = await _userManager.ChangePasswordAsync(user, updateDto.CurrentPassword, updateDto.NewPassword);
+        if (!passwordResult.Succeeded)
+            return BadRequest(passwordResult.Errors);
+    }
+
+    var result = await _userManager.UpdateAsync(user);
+    if (!result.Succeeded)
+        return BadRequest(result.Errors);
+
+    return Ok(new NewUserDto
+    {
+        UserName = user.UserName,
+        Email = user.Email,
+        Token = _tokenService.CreateToken(user)
+    });
+}
+
+[HttpDelete("delete")]
+[Authorize] // Require authentication
+public async Task<IActionResult> DeleteAccount(DeleteAccountDto deleteDto)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    if (string.IsNullOrEmpty(userId))
+        return Unauthorized();
+
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+        return NotFound("User not found.");
+
+    // Verify password before deletion
+    var passwordValid = await _userManager.CheckPasswordAsync(user, deleteDto.Password);
+    if (!passwordValid)
+        return Unauthorized("Invalid password.");
+
+    var result = await _userManager.DeleteAsync(user);
+    if (!result.Succeeded)
+        return BadRequest(result.Errors);
+
+    return NoContent();
+}
+        
     }
 }
