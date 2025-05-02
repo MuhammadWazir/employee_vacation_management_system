@@ -30,17 +30,21 @@ namespace Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
+            // O(n) - where n is number of users (database query)
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // find user by username - O(n)
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
 
             if (user == null) return Unauthorized("Invalid username!");
 
+            // check password - O(1)
             var result = await _signinManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
             if (!result.Succeeded) return Unauthorized("Username not found and/or password incorrect");
 
+            // create token - O(1) assuming constant time operations
             return Ok(
                 new NewUserDto
                 {
@@ -56,9 +60,11 @@ namespace Backend.Controllers
         {
             try
             {
+                // O(1) - model validation
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                // create new user - O(1)
                 var User = new User
                 {
                     UserName = registerDto.Username,
@@ -66,10 +72,12 @@ namespace Backend.Controllers
                     Vacations = new List<Vacation>()
                 };
 
+                // create user in db - O(1) for hash operations
                 var createdUser = await _userManager.CreateAsync(User, registerDto.Password);
 
                 if (createdUser.Succeeded)
                 {
+                    // add role - O(1)
                     var roleResult = await _userManager.AddToRoleAsync(User, "User");
                     if (roleResult.Succeeded)
                     {
@@ -99,84 +107,91 @@ namespace Backend.Controllers
         }
 
         [HttpPut("update")]
-[Authorize] // Require authentication
-public async Task<IActionResult> UpdateAccount(UpdateAccountDto updateDto)
-{
-    if (!ModelState.IsValid)
-        return BadRequest(ModelState);
+        [Authorize]
+        public async Task<IActionResult> UpdateAccount(UpdateAccountDto updateDto)
+        {
+            // O(1) - model validation
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    if (string.IsNullOrEmpty(userId))
-        return Unauthorized();
+            // get user id from token - O(1)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-    var user = await _userManager.FindByIdAsync(userId);
-    if (user == null)
-        return NotFound("User not found.");
+            // find user - O(1) with indexed lookup
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
 
-    // Update email if provided and different
-    if (!string.IsNullOrEmpty(updateDto.Email) && user.Email != updateDto.Email)
-    {
-        user.Email = updateDto.Email;
-        var emailResult = await _userManager.SetEmailAsync(user, updateDto.Email);
-        if (!emailResult.Succeeded)
-            return BadRequest(emailResult.Errors);
-    }
+            // update email if changed - O(1)
+            if (!string.IsNullOrEmpty(updateDto.Email) && user.Email != updateDto.Email)
+            {
+                user.Email = updateDto.Email;
+                var emailResult = await _userManager.SetEmailAsync(user, updateDto.Email);
+                if (!emailResult.Succeeded)
+                    return BadRequest(emailResult.Errors);
+            }
 
-    // Update username if provided and different
-    if (!string.IsNullOrEmpty(updateDto.Username) && user.UserName != updateDto.Username)
-    {
-        user.UserName = updateDto.Username;
-        var usernameResult = await _userManager.SetUserNameAsync(user, updateDto.Username);
-        if (!usernameResult.Succeeded)
-            return BadRequest(usernameResult.Errors);
-    }
+            // update username if changed - O(1)
+            if (!string.IsNullOrEmpty(updateDto.Username) && user.UserName != updateDto.Username)
+            {
+                user.UserName = updateDto.Username;
+                var usernameResult = await _userManager.SetUserNameAsync(user, updateDto.Username);
+                if (!usernameResult.Succeeded)
+                    return BadRequest(usernameResult.Errors);
+            }
 
-    // Update password if provided
-    if (!string.IsNullOrEmpty(updateDto.CurrentPassword) && !string.IsNullOrEmpty(updateDto.NewPassword))
-    {
-        var passwordResult = await _userManager.ChangePasswordAsync(user, updateDto.CurrentPassword, updateDto.NewPassword);
-        if (!passwordResult.Succeeded)
-            return BadRequest(passwordResult.Errors);
-    }
+            // update password if provided - O(1) for hash operations
+            if (!string.IsNullOrEmpty(updateDto.CurrentPassword) && !string.IsNullOrEmpty(updateDto.NewPassword))
+            {
+                var passwordResult = await _userManager.ChangePasswordAsync(user, updateDto.CurrentPassword, updateDto.NewPassword);
+                if (!passwordResult.Succeeded)
+                    return BadRequest(passwordResult.Errors);
+            }
 
-    var result = await _userManager.UpdateAsync(user);
-    if (!result.Succeeded)
-        return BadRequest(result.Errors);
+            // save changes - O(1)
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
 
-    return Ok(new NewUserDto
-    {
-        UserName = user.UserName,
-        Email = user.Email,
-        Token = _tokenService.CreateToken(user)
-    });
-}
+            return Ok(new NewUserDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = _tokenService.CreateToken(user)
+            });
+        }
 
-[HttpDelete("delete")]
-[Authorize] // Require authentication
-public async Task<IActionResult> DeleteAccount(DeleteAccountDto deleteDto)
-{
-    if (!ModelState.IsValid)
-        return BadRequest(ModelState);
+        [HttpDelete("delete")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAccount(DeleteAccountDto deleteDto)
+        {
+            // O(1) - model validation
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-    if (string.IsNullOrEmpty(userId))
-        return Unauthorized();
+            // get user id from token - O(1)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-    var user = await _userManager.FindByIdAsync(userId);
-    if (user == null)
-        return NotFound("User not found.");
+            // find user - O(1) with indexed lookup
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
 
-    // Verify password before deletion
-    var passwordValid = await _userManager.CheckPasswordAsync(user, deleteDto.Password);
-    if (!passwordValid)
-        return Unauthorized("Invalid password.");
+            // verify password - O(1)
+            var passwordValid = await _userManager.CheckPasswordAsync(user, deleteDto.Password);
+            if (!passwordValid)
+                return Unauthorized("Invalid password.");
 
-    var result = await _userManager.DeleteAsync(user);
-    if (!result.Succeeded)
-        return BadRequest(result.Errors);
+            // delete user - O(1)
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
 
-    return NoContent();
-}
-        
+            return NoContent();
+        }
     }
 }

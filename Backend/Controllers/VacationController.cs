@@ -24,15 +24,20 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetVacations(int page = 1, int pageSize = 10)
         {
+            // O(1) - claim lookup
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            // O(n) - query building (where n = total vacations for user)
             var query = _context.Vacations
                 .Where(v => v.UserId == userId)
                 .OrderByDescending(v => v.From);
 
+            // O(n) - count operation
             var total = await query.CountAsync();
+            
+            // O(m) - paginated query (where m = pageSize)
             var vacations = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -60,10 +65,12 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVacation(int id)
         {
+            // O(1) - claim lookup
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            // O(1) - indexed lookup by id + user filter
             var vacation = await _context.Vacations
                 .Where(v => v.Id == id && v.UserId == userId)
                 .Select(v => new VacationResponseDto
@@ -87,17 +94,21 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVacation(VacationRequestDto request)
         {
+            // O(1) - date comparison
             if (!request.IsValidPeriod())
                 return BadRequest("End date must be after start date.");
 
+            // O(1) - claim lookup
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            // O(1) - user lookup by id
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
                 return NotFound("User not found.");
 
+            // O(1) - object creation
             var vacation = new Vacation
             {
                 Description = request.Description,
@@ -107,7 +118,10 @@ namespace Backend.Controllers
                 User = user
             };
 
+            // O(1) - add operation
             _context.Vacations.Add(vacation);
+            
+            // O(1) - save operation (assuming single record)
             await _context.SaveChangesAsync();
 
             var response = new VacationResponseDto
@@ -127,24 +141,29 @@ namespace Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateVacation(int id, VacationRequestDto request)
         {
+            // O(1) - date comparison
             if (!request.IsValidPeriod())
                 return BadRequest("End date must be after start date.");
 
+            // O(1) - claim lookup
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            // O(1) - indexed lookup by id + user filter
             var vacation = await _context.Vacations
                 .FirstOrDefaultAsync(v => v.Id == id && v.UserId == userId);
 
             if (vacation == null)
                 return NotFound();
 
+            // O(1) - property updates
             vacation.Description = request.Description;
             vacation.From = request.From;
             vacation.To = request.To;
             vacation.Duration = (request.To - request.From).Days + 1;
 
+            // O(1) - save operation
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -154,17 +173,22 @@ namespace Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVacation(int id)
         {
+            // O(1) - claim lookup
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
+            // O(1) - indexed lookup by id + user filter
             var vacation = await _context.Vacations
                 .FirstOrDefaultAsync(v => v.Id == id && v.UserId == userId);
 
             if (vacation == null)
                 return NotFound();
 
+            // O(1) - remove operation
             _context.Vacations.Remove(vacation);
+            
+            // O(1) - save operation
             await _context.SaveChangesAsync();
 
             return NoContent();
